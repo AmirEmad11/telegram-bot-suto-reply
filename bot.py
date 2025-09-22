@@ -7,7 +7,7 @@ api_hash = 'd120be656f0dbe54a4ed369e70c2319b'
 phone = '+201014367365'
 
 # اسم القناة
-channel_username = '@اسم_القناة'
+channel_username = '@appleman112'
 
 client = TelegramClient('session', api_id, api_hash)
 
