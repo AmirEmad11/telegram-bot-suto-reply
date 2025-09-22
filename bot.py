@@ -1,14 +1,15 @@
+import asyncio
+from telethon import TelegramClient, events, types
 import os
-import telebot
-from telebot.types import InputMediaPhoto
-import time
 
-TOKEN = os.environ.get("TOKEN")
-bot = telebot.TeleBot(TOKEN)
+# متغيرات البيئة
+api_id = int(os.environ.get("api_id"))
+api_hash = os.environ.get("api_hash")
+phone = os.environ.get("phone")
 
-photos = ["apple1.jpg", "apple2.jpg", "apple3.jpg"]
-users_sent = set()        # المستخدمين اللي استلموا باقي الرسائل
-users_welcomed = set()    # المستخدمين اللي استلموا الترحيب
+channel_username = 'اسم_القناة'  # ضع @username القناة أو معرفها
+
+client = TelegramClient('session_session', api_id, api_hash)
 
 # الرسائل
 welcome_msg = "السلام عليكم 👋\nجاهز تبدأ تشتغل معانا وتعمل فلوس؟ 💰"
@@ -33,58 +34,46 @@ https://t.me/+4HV7r58imh8yNGQ8
 خلينا نكون صريحين مع بعض 🤝😉
 """
 
-# دالة لإرسال باقي الرسائل بعد الترحيب
-def send_remaining_messages(user_id):
+photos = ["apple1.jpg", "apple2.jpg", "apple3.jpg"]
+users_sent = set()
+users_welcomed = set()
+
+# يرسل باقي الرسائل بعد أول تفاعل
+async def send_remaining_messages(user_id):
     if user_id not in users_sent:
-        bot.send_message(user_id, second_msg)
-        time.sleep(3)
+        await client.send_message(user_id, second_msg)
+        await asyncio.sleep(3)
 
         media = []
         for i, photo_file in enumerate(photos):
-            photo = open(photo_file, "rb")
             if i == 0:
-                media.append(InputMediaPhoto(photo, caption=third_msg))
+                media.append(types.InputMediaPhoto(file=photo_file, caption=third_msg))
             else:
-                media.append(InputMediaPhoto(photo))
-        bot.send_media_group(user_id, media)
-        for m in media:
-            m.media.close()
-        time.sleep(3)
-
-        bot.send_message(user_id, fourth_msg)
+                media.append(types.InputMediaPhoto(file=photo_file))
+        await client.send_file(user_id, media)
+        await asyncio.sleep(3)
+        await client.send_message(user_id, fourth_msg)
         users_sent.add(user_id)
 
-# إرسال الترحيب فورًا عند /start
-@bot.message_handler(commands=['start'])
-def start_command(message):
-    user_id = message.chat.id
-    if user_id not in users_welcomed:
-        bot.send_message(user_id, welcome_msg)
-        users_welcomed.add(user_id)
+# عند انضمام عضو جديد للقناة
+@client.on(events.ChatAction(chats=channel_username, user_added=True))
+async def new_member(event):
+    user = await event.get_user()
+    if user.id not in users_welcomed:
+        await client.send_message(user.id, welcome_msg)
+        users_welcomed.add(user.id)
 
-# متابعة أي رسالة بعد الترحيب لإرسال باقي الرسائل
-@bot.message_handler(func=lambda message: True)
-def handle_message(message):
-    user_id = message.chat.id
+# بعد أول رسالة من العضو يرسل باقي الرسائل
+@client.on(events.NewMessage)
+async def handle_message(event):
+    user_id = event.sender_id
     if user_id in users_welcomed and user_id not in users_sent:
-        send_remaining_messages(user_id)
-    # بعد كده المستخدم يقدر يكتب بحرية بدون أي رد تلقائي
+        await send_remaining_messages(user_id)
 
-# مراقبة الانضمام للجروب/Supergroup
-@bot.chat_member_handler()
-def handle_new_member(chat_member_update):
-    new_status = chat_member_update.new_chat_member.status
-    old_status = chat_member_update.old_chat_member.status
-    user = chat_member_update.new_chat_member.user
+# تشغيل Userbot
+async def main():
+    await client.start(phone)
+    print("Userbot running...")
+    await client.run_until_disconnected()
 
-    # لو العضو الجديد انضم
-    if old_status == "left" and new_status == "member" and user.id not in users_welcomed:
-        try:
-            # يبعته رسالة الترحيب فورًا
-            bot.send_message(user.id, welcome_msg)
-            users_welcomed.add(user.id)
-        except Exception as e:
-            print(f"مشكلة في ارسال الترحيب للعضو {user.id}: {e}")
-
-print("Bot is running...")
-bot.infinity_polling()
+asyncio.run(main())
