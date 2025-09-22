@@ -1,28 +1,27 @@
 import asyncio
-from telethon import TelegramClient, events
-import os
+from telethon import TelegramClient, events, types
 
-# متغيرات البيئة
-api_id = int(os.environ.get("api_id"))
-api_hash = os.environ.get("api_hash")
-phone = os.environ.get("phone")
+# بيانات حسابك الشخصي
+api_id = 21943267
+api_hash = 'd120be656f0dbe54a4ed369e70c2319b'
+phone = '+201014367365'
 
-# ضع @username القناة العامة بالضبط
-channel_username = '@MyBroadcastChannel'
+# اسم القناة
+channel_username = '@اسم_القناة'
 
-client = TelegramClient('session_session', api_id, api_hash)
+client = TelegramClient('session', api_id, api_hash)
 
-# رسالة الترحيب التجريبية
 welcome_msg = "السلام عليكم 👋\nجاهز تبدأ تشتغل معانا وتعمل فلوس؟ 💰"
 
 @client.on(events.ChatAction(chats=channel_username, user_added=True))
 async def new_member(event):
     try:
         user = await event.get_user()
+        # إرسال رسالة الترحيب مباشرة بعد الانضمام
         await client.send_message(user.id, welcome_msg)
-        print(f"تم ارسال الترحيب لـ {user.id}")
+        print(f"تم الترحيب بالعضو {user.id}")
     except Exception as e:
-        print(f"Error welcoming user: {e}")
+        print(f"Error: {e}")
 
 async def main():
     await client.start(phone)
