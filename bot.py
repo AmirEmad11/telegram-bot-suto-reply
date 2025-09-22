@@ -7,7 +7,7 @@ api_id = int(os.environ.get("api_id"))
 api_hash = os.environ.get("api_hash")
 phone = os.environ.get("phone")
 
-channel_username = 'اسم_القناة'  # ضع @appleman112 القناة أو معرفها
+channel_username = '@MyBroadcastChannel'  # ضع @username القناة العامة
 
 client = TelegramClient('session_session', api_id, api_hash)
 
@@ -38,39 +38,45 @@ photos = ["apple1.jpg", "apple2.jpg", "apple3.jpg"]
 users_sent = set()
 users_welcomed = set()
 
-# يرسل باقي الرسائل بعد أول تفاعل
 async def send_remaining_messages(user_id):
     if user_id not in users_sent:
-        await client.send_message(user_id, second_msg)
-        await asyncio.sleep(3)
+        try:
+            await client.send_message(user_id, second_msg)
+            await asyncio.sleep(3)
 
-        media = []
-        for i, photo_file in enumerate(photos):
-            if i == 0:
-                media.append(types.InputMediaPhoto(file=photo_file, caption=third_msg))
-            else:
-                media.append(types.InputMediaPhoto(file=photo_file))
-        await client.send_file(user_id, media)
-        await asyncio.sleep(3)
-        await client.send_message(user_id, fourth_msg)
+            media = []
+            for i, photo_file in enumerate(photos):
+                if i == 0:
+                    media.append(types.InputMediaPhoto(file=photo_file, caption=third_msg))
+                else:
+                    media.append(types.InputMediaPhoto(file=photo_file))
+            try:
+                await client.send_file(user_id, media)
+            except Exception as e:
+                print(f"Error sending photos: {e}")
+
+            await asyncio.sleep(3)
+            await client.send_message(user_id, fourth_msg)
+        except Exception as e:
+            print(f"Error sending messages: {e}")
         users_sent.add(user_id)
 
-# عند انضمام عضو جديد للقناة
 @client.on(events.ChatAction(chats=channel_username, user_added=True))
 async def new_member(event):
-    user = await event.get_user()
-    if user.id not in users_welcomed:
-        await client.send_message(user.id, welcome_msg)
-        users_welcomed.add(user.id)
+    try:
+        user = await event.get_user()
+        if user.id not in users_welcomed:
+            await client.send_message(user.id, welcome_msg)
+            users_welcomed.add(user.id)
+    except Exception as e:
+        print(f"Error welcoming user: {e}")
 
-# بعد أول رسالة من العضو يرسل باقي الرسائل
 @client.on(events.NewMessage)
 async def handle_message(event):
     user_id = event.sender_id
     if user_id in users_welcomed and user_id not in users_sent:
         await send_remaining_messages(user_id)
 
-# تشغيل Userbot
 async def main():
     await client.start(phone)
     print("Userbot running...")
