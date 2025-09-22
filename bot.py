@@ -68,15 +68,19 @@ def handle_message(message):
     user_id = message.chat.id
     if user_id in users_welcomed and user_id not in users_sent:
         send_remaining_messages(user_id)
-    # بعد كده لا يرسل أي رد تلقائي، المستخدم يقدر يتكلم بحرية
+    # بعد كده لا يرسل أي رد تلقائي
 
-# مراقبة انضمام المستخدمين للقناة (Supergroup أو linked group)
+# مراقبة الانضمام للقناة أو الجروب
 @bot.chat_member_handler()
 def handle_new_member(chat_member_update):
     new_status = chat_member_update.new_chat_member.status
+    old_status = chat_member_update.old_chat_member.status
     user = chat_member_update.new_chat_member.user
-    if new_status == "member" and user.id not in users_welcomed:
+
+    # لو العضو انضم حديثًا
+    if old_status == "left" and new_status == "member" and user.id not in users_welcomed:
         try:
+            # يبعته رسالة الترحيب فورًا
             bot.send_message(user.id, welcome_msg)
             users_welcomed.add(user.id)
         except Exception as e:
