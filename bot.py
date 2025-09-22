@@ -10,15 +10,7 @@ def send_welcome(message):
 
 @bot.message_handler(func=lambda message: True)
 def handle_message(message):
-    text = message.text.lower()
-
-    # هنا تقدر تضيف الردود حسب الكلام اللي المستخدم هيكتبه بعد كده
-    if "نعم" in text or "جاهز" in text:
-        bot.reply_to(message, "تمام 😎، يلا نبدأ!")
-    elif "لا" in text:
-        bot.reply_to(message, "تمام، ممكن ترجع وقت ما تحب 👍")
-    else:
-        bot.reply_to(message, "مش فاهم قصدك 😅")
+    bot.reply_to(message, "كل يوم بنزل إشارات للعبة 🍎Apple Of Fortune🍎 اللي بتساعد الناس يكسبوا بشكل ثابت أكتر من 5000 جنيه في اليوم. الموضوع بسيط جدًا: أنا بقولك تراهن فين، إنت بتكرر، وإنت بتكسب.")
 
 print("Bot is running...")
 bot.infinity_polling()
