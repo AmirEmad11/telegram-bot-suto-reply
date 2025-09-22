@@ -1,24 +1,16 @@
-from telegram import Update
-from telegram.ext import Application, MessageHandler, filters, ContextTypes
 import os
+import telebot
 
 TOKEN = os.environ.get("TOKEN")
+bot = telebot.TeleBot(TOKEN)
 
-# متغير يحدد إذا كانت دي أول رسالة من اليوزر ولا لأ
-user_first_message = {}
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    bot.reply_to(message, "أهلاً بيك! البوت شغال ✅")
 
-async def auto_reply(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.message.from_user.id
+@bot.message_handler(func=lambda message: True)
+def echo_all(message):
+    bot.reply_to(message, "انت كتبت: " + message.text)
 
-    if user_id not in user_first_message:
-        user_first_message[user_id] = True
-        await update.message.reply_text("👋 أهلاً بيك! دي أول رسالة ليك معانا ❤️")
-    else:
-        await update.message.reply_text("✅ شكرًا لرسالتك، هنرد عليك قريب.")
-
-# إعداد البوت
-app = Application.builder().token(TOKEN).build()
-app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, auto_reply))
-
-if __name__ == "__main__":
-    app.run_polling()
+print("Bot is running...")
+bot.infinity_polling()
