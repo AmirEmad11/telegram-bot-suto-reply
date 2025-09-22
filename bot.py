@@ -1,10 +1,10 @@
 import os
 import telebot
+from telebot.types import InputMediaPhoto
 
 TOKEN = os.environ.get("TOKEN")
 bot = telebot.TeleBot(TOKEN)
 
-# قائمة الصور (ملفات محلية)
 photos = ["apple1.jpg", "apple2.jpg", "apple3.jpg"]
 
 @bot.message_handler(commands=['start'])
@@ -17,14 +17,20 @@ def handle_message(message):
     second_msg = "كل يوم بنزل إشارات للعبة 🍎Apple Of Fortune🍎 اللي بتساعد الناس يكسبوا بشكل ثابت أكتر من 5000 جنيه في اليوم. الموضوع بسيط جدًا: أنا بقولك تراهن فين، إنت بتكرر، وإنت بتكسب."
     bot.send_message(message.chat.id, second_msg)
 
-    # الرسالة الثالثة (مدموجة مع الصور)
+    # الرسالة الثالثة (صور + نص)
     third_msg = """بص على نتايج عملائي 👆
 الناس دي عمرها ما سمعت عن لعبة 🍎Apple Of Fortune🍎 قبل كده وماكانوش يعرفوا إن ممكن يكسبوا منها.
 دلوقتي، بفضل إشاراتي، بيكسبوا 5000 جنيه في اليوم 💸
 """
-    for photo_file in photos:
+
+    media = []
+    for i, photo_file in enumerate(photos):
         with open(photo_file, "rb") as photo:
-            bot.send_photo(message.chat.id, photo, caption=third_msg)
+            if i == 0:
+                media.append(InputMediaPhoto(photo, caption=third_msg))
+            else:
+                media.append(InputMediaPhoto(photo))
+    bot.send_media_group(message.chat.id, media)
 
 print("Bot is running...")
 bot.infinity_polling()
