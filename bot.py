@@ -7,7 +7,7 @@ api_id = int(os.environ.get("api_id"))
 api_hash = os.environ.get("api_hash")
 phone = os.environ.get("phone")
 
-channel_username = '@MyBroadcastChannel'  # ضع @username القناة العامة
+channel_username = '@appleman112'  # ضع @appleman112 القناة العامة
 
 client = TelegramClient('session_session', api_id, api_hash)
 
