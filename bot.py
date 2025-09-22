@@ -3,7 +3,7 @@ from telegram.ext import Application, MessageHandler, filters, ContextTypes
 import os
 
 # التوكن هيتسحب من Environment Variables (هتحطه في Render بعدين)
-TOKEN = os.getenv("TOKEN")
+TOKEN = os.getenv("8257734552:AAEPJrGhgGviwyOCaNQ4sXS3kQ310fW5cVk")
 
 # متغير يحدد إذا كانت دي أول رسالة من اليوزر ولا لأ
 user_first_message = {}
