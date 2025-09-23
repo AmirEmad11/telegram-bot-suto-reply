@@ -13,7 +13,7 @@ channel_username = os.environ.get('TELEGRAM_CHANNEL', '-1001672479948')  # ID of
 
 client = TelegramClient('session', api_id, api_hash)
 
-welcome_msg = "السلام عليكم 👋\nجاهز تبدأ تشتغل معانا وتعمل فلوس؟ 💰"
+welcome_msg = "السلام عليكم 👋\nجاهزز تبدأ تشتغل معانا وتعمل فلوس؟ 💰"
 
 # Handle pending join requests using core Telethon API
 @client.on(events.Raw())
